@@ -51,7 +51,7 @@ int main(){
             return 1;
         }
 
-        err = execl("child_process", "child_process", fileName.c_str(), NULL);
+        err = execl("./bin/child_process", "./bin/child_process", fileName.c_str(), NULL);
         if (err == -1) {
             cerr << "Ошибка при запуске программы из дочернего процесса" << '\n';
             return 1;
