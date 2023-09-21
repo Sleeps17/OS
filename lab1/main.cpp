@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/wait.h>
-#include <fcntl.h>
 #include <vector>
 #include <iostream>
 using namespace std;
@@ -17,13 +12,13 @@ int main(){
     int err = pipe(fd1);
     if (err == -1) {
         cerr << "Ошибка при создании пайпа" << '\n';
-        return 1;
+        exit(EXIT_FAILURE);
     }
 
     err = pipe(fd2);
     if (err == -1) {
         cerr << "Ошибка при создани пайпа" << '\n';
-        return 1;
+        exit(EXIT_FAILURE);
     }
 
     int write1 = fd1[1], read1 = fd1[0];
@@ -32,7 +27,7 @@ int main(){
     pid_t pid = fork();
     if (pid == -1) {
         cerr << "Ошибка при создании дочернего процесса" << '\n';
-        return 1;
+        exit(EXIT_FAILURE);
     }
 
     if (pid == 0) {
@@ -42,19 +37,19 @@ int main(){
         err = dup2(read1, fileno(stdin));
         if (err == -1) { 
             cerr << "Ошибка при перенаправлении ввода" << '\n';
-            return 11;
+            exit(EXIT_FAILURE);
         }
 
         err = dup2(write2, fileno(stdout));
         if (err == -1) {
             cerr << "Ошибка при перенаправлении вывода" << '\n';
-            return 1;
+            exit(EXIT_FAILURE);        
         }
 
         err = execl("./bin/child_process", "./bin/child_process", fileName.c_str(), NULL);
         if (err == -1) {
             cerr << "Ошибка при запуске программы из дочернего процесса" << '\n';
-            return 1;
+            exit(EXIT_FAILURE);
         }
         exit(EXIT_FAILURE);
     }

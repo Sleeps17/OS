@@ -8,13 +8,13 @@ int main(int argc, char *argv[]){
     int fd = open(argv[1], O_CREAT | O_WRONLY, S_IRWXU);
     if (fd == -1) {
         cerr << "Ошибка при попытке открыть файл" << '\n';
-        return 1;
+        exit(EXIT_FAILURE);
     }
 
     int err = ftruncate(fd, 0);
     if (err == -1) {
         cerr << "Ошибка при попытке очистить файл" << '\n';
-        return 1;
+        exit(EXIT_FAILURE);
     }
 
     size_t n;
