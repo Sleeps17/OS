@@ -1,5 +1,4 @@
 #include <sys/wait.h>
-#include <vector>
 #include <iostream>
 using namespace std;
 
@@ -51,7 +50,6 @@ int main(){
             cerr << "Ошибка при запуске программы из дочернего процесса" << '\n';
             exit(EXIT_FAILURE);
         }
-        exit(EXIT_FAILURE);
     }
 
     if (pid > 0) {
@@ -59,23 +57,12 @@ int main(){
         close(read1);
         close(write2);
 
-        double x;
-        char c;
-        vector<double> numbers;
-        while (scanf("%lf%c", &x, &c) > 0) {
-            numbers.push_back(x);
-            if (c == '\n') {
-                size_t n = numbers.size();
-                dprintf(write1, "%ld ", n);
-                for (size_t i = 0; i < n; ++i) {
-                    dprintf(write1, "%lf ", numbers[i]);
-                }
-                numbers.clear();
-            }
+        string s;
+        while (getline(cin, s)) {
+            s += "\n";
+            write(write1, s.c_str(), s.length()*sizeof(char));
         }
-
-        //Разобраться, что нужно получать по второму пайпу
-
+        
         close(write1);
         close(read2);
 
