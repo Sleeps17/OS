@@ -1,1 +1,0 @@
-/usr/bin/g++ -g CMakeFiles/AssyncMain.dir/src/AssyncMain.cpp.o -o ../bin/AssyncMain 

@@ -1,4 +1,0 @@
-/home/pasha/Study/OS/lab2/build/CMakeFiles/AssyncMain.dir
-/home/pasha/Study/OS/lab2/build/CMakeFiles/SyncMain.dir
-/home/pasha/Study/OS/lab2/build/CMakeFiles/edit_cache.dir
-/home/pasha/Study/OS/lab2/build/CMakeFiles/rebuild_cache.dir
