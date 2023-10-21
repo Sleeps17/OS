@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <math.h>
 #include <chrono>
+#include"WaitGroup.cpp"
 
 using Matrix = std::vector<std::vector<double>>;
 
@@ -14,28 +15,7 @@ Matrix result;
 double coefficient;
 int thread_count, k, matrixHeigth, matrixWide, filterHeigth, filterWide; 
 
-// Функция наложения матрицы свертки однопоточно
-void ApplyMatrixWithOneThread(const Matrix& matrix, const Matrix& filter, Matrix& result) {
 
-    const int matrixHeigth = matrix.size(), matrixWide = matrix[0].size();
-    const int filterHeigth = filter.size(), filterWide = filter[0].size();
-    const int hCenter = filterHeigth >> 1, wCenter = filterWide >> 1;
-    double sum = 0.0;
-
-    for(int i = 0; i < matrixHeigth; ++i) {
-        for(int j = 0; j < matrixWide; ++j) {
-
-            for(int k = 0; (hCenter + k < filterHeigth) && (i + k < matrixHeigth); ++k) {
-                for(int l = 0; (wCenter + l < filterWide) && (j + l < matrixWide); ++l) {
-                    sum += matrix[i + k][j + l] * filter[hCenter + k][wCenter + l];
-                } 
-            }
-
-            result[i][j] = sum / coefficient;
-
-        }
-    } 
-}
 
 // Структура аргумента тред-функции
 struct arg_t{
@@ -92,17 +72,20 @@ void ApplyFilter(int height, int wide, arg_t* args) {
 // Функция наложения фильтра многопоточно
 void* ThreadFunction(void* argument) {
     arg_t* args = static_cast<arg_t*>(argument);
+    WaitGroup wg(0);
 
     for(int i = 0; i < k; ++i) {
+        wg.Add(1);
         int startRow = ((matrixHeigth + thread_count - 1) / thread_count) * args -> id;
         int endRow = ((matrixHeigth + thread_count - 1) / thread_count) * (args -> id + 1);
-
 
         for(int i = startRow; i < matrixHeigth && i < endRow; ++i) {
             for(int j = 0; j < matrixWide; ++j) {
                 ApplyFilter(i, j, args);
             }
         }
+        wg.Done();
+        wg.Wait();
     }
 
     pthread_exit(0);
@@ -156,20 +139,8 @@ int main(int argc, char** argv) {
         args[i].filter = &filter;
     }
 
-    // Single-threaded apply
-    auto start = std::chrono::steady_clock::now();
-
-    for(int i = 0; i < k; ++i) {
-        ApplyMatrixWithOneThread(copy, filter, result);
-        copy = result;
-    }
-
-    auto end = std::chrono::steady_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "Sigle-threaded applying: " << duration.count() << "ms" << std::endl;
-
     // Multithreaded apply
-    start = std::chrono::steady_clock::now();
+    auto start = std::chrono::steady_clock::now();
 
     pthread_t tid[thread_count];
     for(int i = 0; i < thread_count; i++) {
@@ -179,10 +150,10 @@ int main(int argc, char** argv) {
         pthread_join(tid[i], nullptr);
     }
 
-    end = std::chrono::steady_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     std::cout << "Multithreaded applying: " << duration.count() << "ms" << std::endl;
 
-    std::cout << "Resultation matrix:\n";
-    PrintMatrix(matrix);
+    //std::cout << "Resultation matrix:\n";
+    //PrintMatrix(matrix);
 }
