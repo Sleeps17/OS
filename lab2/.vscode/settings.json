@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "*.txt": "plaintext",
+        "*.h": "c",
+        "*.sql": "sql",
+        "*.pl": "prolog",
+        "iostream": "cpp"
+    }
+}
