@@ -102,7 +102,7 @@ int main() {
     }
 
     auto end = std::chrono::steady_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "Sigle-threaded applying: " << duration.count() << "ms" << std::endl;
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "Sigle-threaded applying: " << duration.count() << "microseconds" << std::endl;
 
 }

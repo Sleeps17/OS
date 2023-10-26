@@ -3,7 +3,6 @@
 #include <pthread.h>
 #include <math.h>
 #include <chrono>
-#include"WaitGroup.cpp"
 
 using Matrix = std::vector<std::vector<double>>;
 
@@ -16,7 +15,6 @@ double coefficient;
 int thread_count, k, matrixHeigth, matrixWide, filterHeigth, filterWide; 
 
 
-
 // Структура аргумента тред-функции
 struct arg_t{
     Matrix* matrix;
@@ -26,8 +24,6 @@ struct arg_t{
 
 // Фунция для считывания матрицы
 double ScanMatrix(Matrix& matrix){
-    int matrixHeigth = matrix.size();
-    int matrixWide = matrix[0].size();
     double sum = 0.0;
 
     for(auto& arr : matrix) {
@@ -42,8 +38,6 @@ double ScanMatrix(Matrix& matrix){
 
 // Функция для печати матрицы
 void PrintMatrix(Matrix& matrix) {
-    int matrixHeigth = matrix.size();
-    int matrixWide = matrix[0].size();
     std::cout.precision(3);
     for(const auto& arr : matrix) {
         for(const auto& elem : arr) {
@@ -72,10 +66,8 @@ void ApplyFilter(int height, int wide, arg_t* args) {
 // Функция наложения фильтра многопоточно
 void* ThreadFunction(void* argument) {
     arg_t* args = static_cast<arg_t*>(argument);
-    WaitGroup wg(0);
 
     for(int i = 0; i < k; ++i) {
-        wg.Add(1);
         int startRow = ((matrixHeigth + thread_count - 1) / thread_count) * args -> id;
         int endRow = ((matrixHeigth + thread_count - 1) / thread_count) * (args -> id + 1);
 
@@ -84,8 +76,6 @@ void* ThreadFunction(void* argument) {
                 ApplyFilter(i, j, args);
             }
         }
-        wg.Done();
-        wg.Wait();
     }
 
     pthread_exit(0);
@@ -151,9 +141,9 @@ int main(int argc, char** argv) {
     }
 
     auto end = std::chrono::steady_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "Multithreaded applying: " << duration.count() << "ms" << std::endl;
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "Multithreaded applying: " << duration.count() << "microseconds" << std::endl;
 
-    //std::cout << "Resultation matrix:\n";
-    //PrintMatrix(matrix);
+    std::cout << "Resultation matrix:\n";
+    PrintMatrix(matrix);
 }
