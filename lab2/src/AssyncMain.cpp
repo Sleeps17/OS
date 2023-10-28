@@ -76,6 +76,12 @@ void* ThreadFunction(void* argument) {
                 ApplyFilter(i, j, args);
             }
         }
+
+        for(int i = startRow; i < endRow; ++i) {
+            for(int j = 0; j < matrixWide; ++j) {
+                (*(args -> matrix))[i][j] = result[i][j];       
+            }
+        }
     }
 
     pthread_exit(0);
@@ -142,8 +148,8 @@ int main(int argc, char** argv) {
 
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    std::cout << "Multithreaded applying: " << duration.count() << "microseconds" << std::endl;
+    std::cout << "Multithreaded applying: " << duration.count() << " microseconds" << std::endl;
 
-    std::cout << "Resultation matrix:\n";
-    PrintMatrix(matrix);
+    //std::cout << "Resultation matrix:\n";
+    //PrintMatrix(matrix);
 }

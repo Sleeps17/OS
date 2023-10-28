@@ -132,7 +132,7 @@ func main() {
 
 	end := time.Now()
 	duration := end.Sub(start).Microseconds()
-	fmt.Println(duration)
+	fmt.Println(duration, "microseconds")
 
-	matrix.Print()
+	//matrix.Print()
 }

@@ -28,7 +28,7 @@ do
     echo "Среднее время выполнения для $i потоков: $average_time мс"
     (echo $i $average_time) >> ~/Study/OS/lab2/InOutFiles/data.txt
     acceleration=$(echo "scale=5; $execution_time_mono/ $average_time" | bc)
-    echo "Ускорение для запуска с $i потоков: $acceleration"
+    echo "Ускорение для запуска с $i потоков: 0$acceleration"
     (echo $i $acceleration) >> ~/Study/OS/lab2/InOutFiles/data.txt
     efficient=$(echo "scale=5; $acceleration/$i" | bc)
     echo "Эффективность для запуска с $i потоков: 0$efficient"
