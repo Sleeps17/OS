@@ -35,6 +35,15 @@ public:
         return searchNode(root, value);
     }
 
+    Error remove(const T& value) {
+        bool have = searchNode(root, value);
+        if(!have) {
+            return "Error: id not found";
+        }
+        root = deleteNode(root, value);
+        return nullptr;
+    }
+
 private:
     Node* insertNode(Node* node, const T& value) {
         if (node == nullptr) {
@@ -72,6 +81,45 @@ private:
         destroyTree(node->left);
         destroyTree(node->right);
         delete node;
+    }
+
+    Node* findSuccessor(Node* node) {
+        Node* current = node;
+        while (current && current->left != nullptr) {
+            current = current->left;
+        }
+        return current;
+    }
+
+    Node* deleteNode(Node* node, const T& value) {
+        if (node == nullptr) {
+            return nullptr;
+        }
+
+        if (value < node->data) {
+            node->left = deleteNode(node->left, value);
+        } else if (value > node->data) {
+            node->right = deleteNode(node->right, value);
+        } else {
+            if (node->left == nullptr && node->right == nullptr) {
+                delete node;
+                return nullptr;
+            } else if (node->left == nullptr) {
+                Node* temp = node->right;
+                delete node;
+                return temp;
+            } else if (node->right == nullptr) {
+                Node* temp = node->left;
+                delete node;
+                return temp;
+            } else {
+                Node* successor = findSuccessor(node->right);
+                node->data = successor->data;
+                node->right = deleteNode(node->right, successor->data);
+            }
+        }
+
+        return node;
     }
 };
 

@@ -19,6 +19,8 @@ bool started = false;
 
 using Error = const char*;
 
+std::string HandleStart();
+
 
 Error StartTimer() {
     if(started && !stopped) {
@@ -82,27 +84,7 @@ int GetTimer() {
     return result;
 }
 
-std::string HandleStart() {
-    Response resp;
-    nlohmann::json jsonResp;
 
-    auto err = StartTimer();
-    if(err != nullptr) {
-        resp.status = ERROR;
-        resp.error = std::string(err);
-        jsonResp = {
-                {"status", resp.status},
-                {"error", resp.error}
-        };
-    } else {
-        resp.status = OK;
-        jsonResp = {
-                {"status", resp.status},
-        };
-    }
-
-    return jsonResp.dump();
-}
 
 std::string HandleStop() {
     Response resp;
@@ -174,6 +156,8 @@ int main(int argc, char* argv[]) {
 
     int id = std::stoi(argv[1]);
 
+
+
     // Initialize ZeroMQ context and socket
     zmq::context_t context(1);
     zmq::socket_t socket(context, zmq::socket_type::pair);
@@ -216,4 +200,28 @@ int main(int argc, char* argv[]) {
     socket.close();
     context.close();
     return 0;
+}
+
+
+
+std::string HandleStart() {
+    Response resp;
+    nlohmann::json jsonResp;
+
+    auto err = StartTimer();
+    if(err != nullptr) {
+        resp.status = ERROR;
+        resp.error = std::string(err);
+        jsonResp = {
+                {"status", resp.status},
+                {"error", resp.error}
+        };
+    } else {
+        resp.status = OK;
+        jsonResp = {
+                {"status", resp.status},
+        };
+    }
+
+    return jsonResp.dump();
 }

@@ -5,6 +5,8 @@
 #include <utility>
 #include <csignal>
 #include <thread>
+#include <cstdlib>
+
 
 #include "topology.hpp"
 #include "request.hpp"
@@ -29,6 +31,17 @@ void signalHandler(int signal) {
     exit(EXIT_SUCCESS);
 }
 
+int readID() {
+    std::string id_str;
+    std::cin >> id_str;
+    char* end;
+    int id = (int)strtol(id_str.c_str(), &end, 10);
+    if ( (*end != '\0' && *end != '\n') || id < 0) {
+        return -1;
+    }
+    return id;
+}
+
 int main() {
 
     signal(SIGINT, signalHandler);
@@ -41,6 +54,7 @@ int main() {
     std::cout << "  - start: start timer" << std::endl;
     std::cout << "  - stop: stop timer" << std::endl;
     std::cout << "Output of all unavailable nodes: pingall" << std::endl;
+    std::cout << "Remove node: remove <id>" << std::endl;
     std::cout << std::endl;
 
     Topology<int> topology;
@@ -49,8 +63,11 @@ int main() {
     while(keepRunning && std::cout << "> " && std::cin >> action) {
         if(action == "create") {
 
-            int id;
-            std::cin >> id;
+            int id = readID();
+            if(id == -1) {
+                std::cout << "Error: invalid id" << std::endl;
+                continue;
+            }
 
             Error err = topology.insert(id);
             if (err != nullptr) {
@@ -75,8 +92,11 @@ int main() {
                 std::cout << "OK: " << pid << std::endl;
             }
         } else if (action == "exec") {
-            int id;
-            std::cin >> id;
+            int id = readID();
+            if(id == -1) {
+                std::cout << "Error: invalid id" << std::endl;
+                continue;
+            }
             std::string command;
             std::cin >> command;
 
@@ -155,8 +175,16 @@ int main() {
                     }
                 }
             }
-
             std::cout << "OK: " << (cnt == 0 ? -1 : cnt)<< std::endl;
+        } else if(action == "remove") {
+            int id = readID();
+
+            auto err = topology.remove(id);
+            if (err != nullptr) {
+                std::cout << err << std::endl;
+            } else {
+                std::cout << "OK: " << id << std::endl;
+            }
         } else {
             std::cout << "Unknown command" << std::endl;
         }
