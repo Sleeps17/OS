@@ -17,14 +17,14 @@
 
 bool keepRunning = true;
 std::unordered_map<int, std::pair<zmq::context_t, zmq::socket_t>> childs;
-std::vector<int> pids;
+std::unordered_map<int, pid_t> pids;
 
 void signalHandler(int signal) {
     if (signal == SIGINT) {
         std::cout << "Received SIGINT (Ctrl+C)" << std::endl;
         keepRunning = false;
         for (auto pid : pids) {
-            kill(pid, SIGINT);
+            kill(pid.second, SIGINT);
         }
     }
     std::cout << "KILL ALL PROCESSES" << std::endl;
@@ -88,7 +88,7 @@ int main() {
             if(pid == 0) {
                 execl("./bin/calculation", "calculation", std::to_string(id).c_str(), nullptr);
             } else {
-                pids.push_back(pid);
+                pids[id] = pid;
                 std::cout << "OK: " << pid << std::endl;
             }
         } else if (action == "exec") {
@@ -183,6 +183,8 @@ int main() {
             if (err != nullptr) {
                 std::cout << err << std::endl;
             } else {
+                pid_t pid = pids[id];
+                kill(pid, SIGINT);
                 std::cout << "OK: " << id << std::endl;
             }
         } else {
