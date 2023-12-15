@@ -44,6 +44,18 @@ public:
         return nullptr;
     }
 
+    std::vector<T> findPathToNode(const T& value) {
+        std::vector<T> path;
+        findPath(root, value, path);
+        return path;
+    }
+
+    int maxDepth() {
+        return privateMaxDepth(root);
+    }
+
+
+
 private:
     Node* insertNode(Node* node, const T& value) {
         if (node == nullptr) {
@@ -120,6 +132,41 @@ private:
         }
 
         return node;
+    }
+
+    bool findPath(Node* node, const T& value, std::vector<T>& path) {
+        if (node == nullptr) {
+            return false;
+        }
+
+        if (value == node->data) {
+            path.push_back(node->data);
+            return true;
+        }
+        else if (value < node->data) {
+            if (findPath(node->left, value, path)) {
+                path.push_back(node->data);
+                return true;
+            }
+        }
+        else {
+            if (findPath(node->right, value, path)) {
+                path.push_back(node->data);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    int privateMaxDepth(Node* node) {
+        if (node == nullptr) {
+            return 0;
+        }
+
+        int leftDepth = privateMaxDepth(node->left);
+        int rightDepth = privateMaxDepth(node->right);
+
+        return std::max(leftDepth, rightDepth) + 1;
     }
 };
 

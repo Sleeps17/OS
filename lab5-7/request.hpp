@@ -8,6 +8,7 @@ enum action_t {
     Start,
     Stop,
     Ping,
+    Create,
     Unknown
 };
 
@@ -15,6 +16,9 @@ struct Request {
 
 public:
     action_t action;
+    std::vector<int> path;
+    int id{};
+    int maxDepth{};
     Request(): action(Unknown){}
     explicit Request(const std::string& str) {
         if (str == "time") {
@@ -29,6 +33,7 @@ public:
             action = Unknown;
         }
     }
+    Request(const action_t& a, std::vector<int>& _path, int _id): action(a), path(_path), id(_id) {}
     ~Request() = default;
 
     explicit operator std::string() const {

@@ -14,6 +14,7 @@ struct Response {
 public:
     Status status;
     int result{};
+    int pid{};
     std::string error{};
 
 
