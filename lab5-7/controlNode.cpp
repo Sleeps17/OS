@@ -90,12 +90,13 @@ int main() {
                 std::this_thread::sleep_for(topology.maxDepth() * std::chrono::milliseconds(50));
 
                 zmq::message_t reply;
-                bool replyed = true;
+                bool replyed;
                 try {
-                    socket.recv(&reply, ZMQ_DONTWAIT);
+                    replyed = socket.recv(&reply, ZMQ_DONTWAIT);
                 } catch(zmq::error_t& e) {
                     replyed = false;
                 }
+
 
                 if (replyed) {
                     std::string replyStr = std::string(static_cast<char*>(reply.data()), reply.size());
@@ -104,7 +105,7 @@ int main() {
 
                     Response resp;
 
-                    resp.status = jsonReply["status"];
+                    resp.status = jsonReply.at("status");
 
                     if (resp.status == ERROR) {
                         std::string error = jsonReply["error"];
@@ -119,13 +120,77 @@ int main() {
                 }
             }
 
-        } else if (action == "exec") {
+        }
+        else if (action == "exec") {
             int id = readID();
             if(id == -1) {
                 std::cout << "Error: invalid id" << std::endl;
                 continue;
             }
 
+            std::string command;
+            std::cin >> command;
+
+            if(command != "time" && command != "start" && command != "stop") {
+                std::cout << "Error: invalid subcommand" << std::endl;
+                continue;
+            }
+
+            bool finded = topology.search(id);
+            if (!finded) {
+                std::cout << "Error: node with id = " << id << " not found" << std::endl;
+                continue;
+            }
+
+            auto path = topology.findPathToNode(id);
+            reverse(path.begin(), path.end());
+            path.pop_back();
+
+            Request req(command, path, id);
+            nlohmann::json jsonReq = {
+                    {"action", req.action},
+                    {"path", req.path},
+                    {"id", req.id},
+                    {"maxDepth", topology.maxDepth()}
+            };
+
+            std::string jsonReqString = jsonReq.dump();
+            zmq::message_t msg(jsonReqString.begin(), jsonReqString.end());
+            socket.send(msg, zmq::send_flags::none);
+
+            std::this_thread::sleep_for(topology.maxDepth() * std::chrono::milliseconds(topology.maxDepth()*50));
+
+            zmq::message_t reply;
+            bool replyed;
+            try {
+                replyed = socket.recv(&reply, ZMQ_DONTWAIT);
+            } catch(zmq::error_t& e) {
+                replyed = false;
+            }
+
+            Response resp;
+            nlohmann::json jsonReply;
+
+            if (replyed) {
+                std::string replyStr = std::string(static_cast<char*>(reply.data()), reply.size());
+                jsonReply = nlohmann::json::parse(replyStr);
+            } else {
+                std::cout << "Error : node with id = " << id << " not available" << std::endl;
+                continue;
+            }
+
+
+            resp.status = jsonReply.at("status");
+            if (resp.status == ERROR) {
+                std::string error = jsonReply["error"];
+                std::cout << error << std::endl;
+            } else if (resp.status == OK) {
+                std::cout << "OK: " << id;
+                if (req.action == Time) {
+                    std::cout << " " << jsonReply["result"] << "ms";
+                }
+                std::cout << std::endl;
+            }
         } else if (action == "pingall") {
 
         } else if(action == "remove") {

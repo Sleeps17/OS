@@ -33,6 +33,10 @@ public:
             action = Unknown;
         }
     }
+    Request(const std::string& str,const std::vector<int>& _path, int _id): Request(str) {
+        path = _path;
+        id = _id;
+    }
     Request(const action_t& a, std::vector<int>& _path, int _id): action(a), path(_path), id(_id) {}
     ~Request() = default;
 

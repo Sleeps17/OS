@@ -12,8 +12,6 @@ bool started = false;
 
 using Error = const char*;
 
-std::string HandleStart();
-
 
 Error StartTimer() {
     if(started && !stopped) {
