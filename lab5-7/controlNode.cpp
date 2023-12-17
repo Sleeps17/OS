@@ -123,6 +123,7 @@ int main() {
                     resp.status = jsonReply.at("status");
 
                     if (resp.status == ERROR) {
+                        topology.remove(id);
                         std::string error = jsonReply["error"];
                         std::cout << error << std::endl;
                     } else if (resp.status == OK) {
@@ -130,7 +131,7 @@ int main() {
                         std::cout << "OK: " << pid << std::endl;
                     }
                 } else {
-                    std::cout << "Error: node with id = " << id << " not found" << std::endl;
+                    std::cout << "Error: node with id = " << id << " not available" << std::endl;
                     continue;
                 }
             }
