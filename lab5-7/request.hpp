@@ -19,6 +19,7 @@ public:
     std::vector<int> path;
     int id{};
     int maxDepth{};
+    int timeToWait{};
     Request(): action(Unknown){}
     explicit Request(const std::string& str) {
         if (str == "time") {

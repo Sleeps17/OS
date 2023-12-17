@@ -54,7 +54,15 @@ public:
         return privateMaxDepth(root);
     }
 
-
+    std::vector<T> getNodesInSubtree(const T& value) {
+        Node* node = findNode(root, value);
+        if (node == nullptr) {
+            return {};
+        }
+        std::vector<T> nodes;
+        getNodes(node, nodes);
+        return nodes;
+    }
 
 private:
     Node* insertNode(Node* node, const T& value) {
@@ -167,6 +175,28 @@ private:
         int rightDepth = privateMaxDepth(node->right);
 
         return std::max(leftDepth, rightDepth) + 1;
+    }
+
+    Node* findNode(Node* node, const T& value) {
+        if (node == nullptr || node->data == value) {
+            return node;
+        }
+
+        if (value < node->data) {
+            return findNode(node->left, value);
+        } else {
+            return findNode(node->right, value);
+        }
+    }
+
+    void getNodes(Node* node, std::vector<T>& nodes) {
+        if (node == nullptr) {
+            return;
+        }
+
+        getNodes(node->left, nodes);
+        nodes.push_back(node->data);
+        getNodes(node->right, nodes);
     }
 };
 

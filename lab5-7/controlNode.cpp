@@ -15,6 +15,8 @@ zmq::context_t context(1);
 zmq::socket_t socket(context, zmq::socket_type::pair);
 bool connected = false;
 
+int rootID;
+
 int readID() {
     std::string id_str;
     std::cin >> id_str;
@@ -24,6 +26,18 @@ int readID() {
         return -1;
     }
     return id;
+}
+
+int binaryPower(int base, int exponent) {
+    int result = 1;
+    while (exponent > 0) {
+        if (exponent & 1) {
+            result *= base;
+        }
+        base *= base;
+        exponent >>= 1;
+    }
+    return result;
 }
 
 int main() {
@@ -70,6 +84,7 @@ int main() {
                     connected = true;
                     std::cout << "OK: " << pid << std::endl;
                 }
+                rootID = id;
             } else {
                 auto path = topology.findPathToNode(id);
                 reverse(path.begin(), path.end());
@@ -144,7 +159,6 @@ int main() {
 
             auto path = topology.findPathToNode(id);
             reverse(path.begin(), path.end());
-            path.pop_back();
 
             Request req(command, path, id);
             nlohmann::json jsonReq = {
@@ -158,7 +172,7 @@ int main() {
             zmq::message_t msg(jsonReqString.begin(), jsonReqString.end());
             socket.send(msg, zmq::send_flags::none);
 
-            std::this_thread::sleep_for(topology.maxDepth() * std::chrono::milliseconds(topology.maxDepth()*50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(topology.maxDepth()*50));
 
             zmq::message_t reply;
             bool replyed;
@@ -191,8 +205,58 @@ int main() {
                 }
                 std::cout << std::endl;
             }
-        } else if (action == "pingall") {
+        }
+        else if (action == "pingall") {
+            Request req("ping");
+            req.maxDepth = topology.maxDepth();
+            req.timeToWait = binaryPower(2, 10);
 
+            nlohmann::json jsonReq = {
+                    {"action", req.action},
+                    {"maxDepth", req.maxDepth},
+                    {"timeToWait", req.timeToWait}
+            };
+            std::string jsonReqStr = jsonReq.dump();
+            zmq::message_t msg(jsonReqStr.begin(), jsonReqStr.end());
+            socket.send(msg, zmq::send_flags::none);
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(req.timeToWait));
+
+            zmq::message_t reply;
+            bool replyed;
+            try {
+                replyed = socket.recv(&reply, ZMQ_DONTWAIT);
+            } catch(zmq::error_t& e) {
+                replyed = false;
+            }
+            if (replyed) {
+                std::string replyStr = std::string(static_cast<char*>(reply.data()), reply.size());
+                nlohmann::json jsonReply = nlohmann::json::parse(replyStr);
+
+                Response resp;
+                resp.unavailable = std::vector<int>(jsonReply.at("unavailable"));
+
+                std::cout << "OK: ";
+                if (resp.unavailable.empty()) {
+                    std::cout << -1 << std::endl;
+                    continue;
+                }
+
+                for (auto& elem : resp.unavailable) {
+                    auto unavailableSons = topology.getNodesInSubtree(elem);
+                    for (auto& son : unavailableSons) {
+                        std::cout << son << "; ";
+                    }
+                }
+                std::cout << std::endl;
+            } else {
+                auto unavailable = topology.getNodesInSubtree(rootID);
+                std::cout << "OK: ";
+                for(auto& elem : unavailable) {
+                    std::cout << elem << "; ";
+                }
+                std::cout << std::endl;
+            }
         } else if(action == "remove") {
 
         } else {

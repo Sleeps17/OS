@@ -16,7 +16,7 @@ public:
     int result{};
     int pid{};
     std::string error{};
-
+    std::vector<int> unavailable;
 
     Response(): status(OK) {}
     explicit Response(Status status): status(status) {}
