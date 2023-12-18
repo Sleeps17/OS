@@ -17,6 +17,8 @@ bool connected = false;
 
 int rootID;
 
+std::vector<int> pids;
+
 int readID() {
     std::string id_str;
     std::cin >> id_str;
@@ -26,6 +28,12 @@ int readID() {
         return -1;
     }
     return id;
+}
+
+void KillProcess() {
+    for (auto& pid : pids) {
+        kill(pid, SIGKILL);
+    }
 }
 
 int binaryPower(int base, int exponent) {
@@ -83,6 +91,7 @@ int main() {
                     socket.connect(MakeConnPort(id));
                     connected = true;
                     std::cout << "OK: " << pid << std::endl;
+                    pids.push_back(pid);
                 }
                 rootID = id;
             } else {
@@ -129,6 +138,7 @@ int main() {
                     } else if (resp.status == OK) {
                         int pid = jsonReply["pid"];
                         std::cout << "OK: " << pid << std::endl;
+                        pids.push_back(pid);
                     }
                 } else {
                     std::cout << "Error: node with id = " << id << " not available" << std::endl;
@@ -258,11 +268,11 @@ int main() {
                 }
                 std::cout << std::endl;
             }
-        } else if(action == "remove") {
-
         } else {
             std::cout << "Unknown command" << std::endl;
         }
     }
+
+    KillProcess();
     return 0;
 }
