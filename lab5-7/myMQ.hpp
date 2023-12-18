@@ -3,10 +3,6 @@
 
 #include <zmq.hpp>
 
-namespace myMQ {
-
-}
-
 const int BASE_PORT = 5505;
 
 std::string MakeConnPort(int id) {
