@@ -1,0 +1,1 @@
+/usr/bin/g++ -g CMakeFiles/SyncMain.dir/src/SyncMain.cpp.o -o ../bin/SyncMain 

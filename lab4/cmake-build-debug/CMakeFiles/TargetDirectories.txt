@@ -1,0 +1,6 @@
+/home/pasha/Study/OS/lab4/cmake-build-debug/CMakeFiles/function1.dir
+/home/pasha/Study/OS/lab4/cmake-build-debug/CMakeFiles/function2.dir
+/home/pasha/Study/OS/lab4/cmake-build-debug/CMakeFiles/staticMain.dir
+/home/pasha/Study/OS/lab4/cmake-build-debug/CMakeFiles/dynamicMain.dir
+/home/pasha/Study/OS/lab4/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/pasha/Study/OS/lab4/cmake-build-debug/CMakeFiles/rebuild_cache.dir

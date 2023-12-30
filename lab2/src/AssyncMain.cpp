@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <pthread.h>
-#include <math.h>
+#include <cmath>
 #include <chrono>
 
 using Matrix = std::vector<std::vector<double>>;
@@ -76,15 +76,18 @@ void* ThreadFunction(void* argument) {
                 ApplyFilter(i, j, args);
             }
         }
-
+        std::cout << "HELLO\n";
         for(int i = startRow; i < endRow; ++i) {
             for(int j = 0; j < matrixWide; ++j) {
-                (*(args -> matrix))[i][j] = result[i][j];       
+                std::cout << "HOW\n";
+                (*(args -> matrix))[i][j] = result[i][j];
             }
         }
     }
 
-    pthread_exit(0);
+    std::cout << "HI\n";
+
+    pthread_exit(nullptr);
 }
 
 
@@ -126,6 +129,9 @@ int main(int argc, char** argv) {
     if (k < 0) {
         throw std::invalid_argument("Кол-во наложений фильтра должно быть больше 0");
     }
+
+    PrintMatrix(filter);
+    PrintMatrix(matrix);
 
     // make thread data
     arg_t args[thread_count];

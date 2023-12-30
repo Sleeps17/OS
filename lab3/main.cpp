@@ -16,7 +16,7 @@ int main(){
     std::getline(std::cin, fileName);
 
     // Открываем сегмент shared memory
-    int sharedMemoryfd = shm_open(sharedMemoryName, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    int sharedMemoryfd = shm_open(sharedMemoryName, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);// OPENAT
     if (sharedMemoryfd == -1) {
         throw std::runtime_error("Ошибка при открытии shared memory в дочернем процессе");
     }
@@ -27,7 +27,7 @@ int main(){
     }
 
     // Отображаем участок памяти в структуру
-    SharedMemory* sharedMemory = (SharedMemory*)mmap(NULL, sizeof(SharedMemory), prots, flags, sharedMemoryfd, 0);
+    auto* sharedMemory = (SharedMemory*)mmap(NULL, sizeof(SharedMemory), prots, flags, sharedMemoryfd, 0);
     if (sharedMemory == MAP_FAILED) {
         throw std::runtime_error("Ошибка при отображении shared memory");
     }
@@ -95,9 +95,6 @@ int main(){
                 sem_post(&sharedMemory -> semaphore2);
             }
         }
-
-        // Дожидаемся завершения дочернего процесса
-        wait(nullptr);
 
         // Уничтожаем семафоры
         sem_destroy(&sharedMemory->semaphore1);

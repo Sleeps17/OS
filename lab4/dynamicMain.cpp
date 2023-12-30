@@ -63,6 +63,7 @@ Error TypeOne() {
         }
     }
 
+
     double A, deltaX;
     std::cin >> A >> deltaX;
     double res = derivative(A, deltaX);
@@ -98,7 +99,6 @@ void HandleError(Error err) {
     std::cerr << err << std::endl;
     dlclose(handlers[0]);
     dlclose(handlers[1]);
-    return;
 }
 
 

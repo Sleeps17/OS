@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/pasha/Study/OS/lab2/build",
+  "command": "/usr/bin/g++   -g -std=gnu++11 -o CMakeFiles/AssyncMain.dir/src/AssyncMain.cpp.o -c /home/pasha/Study/OS/lab2/src/AssyncMain.cpp",
+  "file": "/home/pasha/Study/OS/lab2/src/AssyncMain.cpp"
+},
+{
+  "directory": "/home/pasha/Study/OS/lab2/build",
+  "command": "/usr/bin/g++   -g -std=gnu++11 -o CMakeFiles/SyncMain.dir/src/SyncMain.cpp.o -c /home/pasha/Study/OS/lab2/src/SyncMain.cpp",
+  "file": "/home/pasha/Study/OS/lab2/src/SyncMain.cpp"
+}
+]
