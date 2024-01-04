@@ -31,11 +31,11 @@ namespace BinaryAllocator {
             return static_cast<size_t>(std::pow(2, std::ceil(std::log2(size))));
         }
         
-        static Block* CreateBlock(size_t _offset, bool _taken, Block* _next) {
+        static Block* CreateBlock(size_t _offset) {
             auto block = (Block*)calloc(1, sizeof(Block));
             block->offset = _offset;
-            block->taken = _taken;
-            block->next = _next;
+            block->taken = false;
+            block->next = nullptr;
             return block;
         }
 
@@ -85,6 +85,21 @@ namespace BinaryAllocator {
             return goalBlock;
         }
 
+        Block* Front(size_t listIndex) {
+            if (freeLists[listIndex] == nullptr) {
+                return nullptr;
+            }
+
+            auto currBlock = freeLists[listIndex];
+            while(currBlock != nullptr) {
+                if (!currBlock->taken) {
+                    return currBlock;
+                }
+                currBlock = currBlock->next;
+            }
+
+            return nullptr;
+        }
 
         void PopBlock(size_t listIndex, Block* block) {
             if (block == nullptr) {
@@ -119,16 +134,16 @@ namespace BinaryAllocator {
             size_t halfBlockSize = blockSize / 2;
 
             if (freeLists[listIndex] != nullptr) {
-                auto lastBlock = Back(listIndex);
+                auto lastBlock = Front(listIndex);
                 if (lastBlock == nullptr) {
                     throw std::runtime_error("SPLIT NULLPTR");
                 }
                 size_t blockOffset = lastBlock->offset;
                 PopBlock(listIndex, lastBlock);
 
-                auto firstBlock = CreateBlock(blockOffset, false, nullptr);
+                auto firstBlock = CreateBlock(blockOffset);
 
-                auto secondBlock = CreateBlock(blockOffset + halfBlockSize, false, nullptr);
+                auto secondBlock = CreateBlock(blockOffset + halfBlockSize);
 
                 PushFront(listIndex - 1, firstBlock);
                 PushFront(listIndex - 1, secondBlock);
@@ -150,7 +165,7 @@ namespace BinaryAllocator {
 
             freeLists = reinterpret_cast<Block**>(memory);
 
-            auto firstBlock = CreateBlock(freeListsSize*sizeof(Block*), false, nullptr);
+            auto firstBlock = CreateBlock(freeListsSize * sizeof(Block*));
 
             size_t index = Log2(totalSize);
             for(int i = 0; i < index; ++i) {
@@ -160,22 +175,25 @@ namespace BinaryAllocator {
         }
 
         Byte* allocate(size_t size) {
+            if (size <= 0) {
+                return nullptr;
+            }
             size_t blockSize = nextPowerOfTwo(size);
             size_t listIndex = Log2(blockSize);
 
             if (listIndex >= freeListsSize) {
-                throw std::runtime_error("END OF MEMORY");
+                throw std::runtime_error("END OF MEMORY 1");
             }
 
             if (Empty(listIndex)) {
 
                 int ind = 1;
-                while (listIndex + ind < freeListsSize && freeLists[listIndex + ind] == nullptr) {
+                while (listIndex + ind < freeListsSize && Empty(listIndex + ind)) {
                     ind++;
                 }
 
                 if (ind == freeListsSize) {
-                    throw std::runtime_error("END OF MEMORY");
+                    throw std::runtime_error("END OF MEMORY 2");
                 }
 
                 while(ind > 0) {
@@ -184,9 +202,9 @@ namespace BinaryAllocator {
                 }
             }
 
-            auto neededBlock = Back(listIndex);
+            auto neededBlock = Front(listIndex);
             if (neededBlock == nullptr) {
-                throw std::runtime_error("END OF MEMORY");
+                throw std::runtime_error("END OF MEMORY 3");
             }
 
             size_t blockOffset = neededBlock->offset;

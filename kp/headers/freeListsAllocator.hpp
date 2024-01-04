@@ -24,7 +24,7 @@ namespace FreeListsAllocator {
         size_t totalSize;
 
         Block* findBestBlock(size_t size) {
-            size_t minDiff = 1e9;
+            size_t minDiff = 1e15;
             Block* bestBlock = nullptr;
             Block* currBlock = freeBlocks;
             while(currBlock != nullptr) {
@@ -55,11 +55,12 @@ namespace FreeListsAllocator {
                 return;
             }
 
-            while(freeBlocks -> next != nullptr) {
-                freeBlocks = freeBlocks -> next;
+            auto currBlock = freeBlocks;
+            while(currBlock -> next != nullptr) {
+                currBlock = currBlock -> next;
             }
 
-            freeBlocks -> next = blockPtr;
+            currBlock -> next = blockPtr;
         }
 
     public:
@@ -82,6 +83,10 @@ namespace FreeListsAllocator {
         }
 
         Byte* allocate(size_t _size) {
+            if (_size <= 0) {
+                return nullptr;
+            }
+
             if (freeBlocks == nullptr) {
                 return nullptr;
             }
